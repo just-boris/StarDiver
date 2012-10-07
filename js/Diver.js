@@ -4,8 +4,8 @@ function Diver(container) {
     diverEl.style.top = Water.BOAT_Y+'px';
     diverEl.style.left = Water.BOAT_X+'px';
     this.stars = [];
-    this.dive();
     container.appendChild(diverEl);
+    this.dive();
 }
 Diver.prototype.setState = function(state) {
     var suffix;
@@ -30,57 +30,84 @@ Diver.prototype.getXCoordinate = function() {
 Diver.prototype.getYCoordinate = function() {
     return parseFloat(this.diverEl.style.top);
 };
-Diver.prototype.diveSpeed = 20/1000;
+Diver.prototype.diveSpeed = 100/1000;
 Diver.prototype.dive = function() {
-    var me = this,
-        diveAnimation = window.setInterval(function() {
-            var top = parseFloat(me.diverEl.style.top)+me.diveSpeed*50;
-            me.diverEl.style.top = top.toFixed(4)+'px';
-            if(top > me.container.offsetHeight-me.diverEl.offsetHeight) {
-                window.clearInterval(diveAnimation);
-                me.goHarvest();
-            }
-        }, 50);
+    var me = this;
     this.setState('dive');
-}
+    me.moveY(me.container.offsetHeight-me.diverEl.offsetHeight, function() {
+        me.goHarvest();
+    });
+};
 Diver.prototype.float = function() {
-    var me = this,
-        floatAnimation = window.setInterval(function() {
-            var top = parseFloat(me.diverEl.style.top)-me.diveSpeed*50;
-            me.diverEl.style.top = top+'px';
-            if(top < Water.BOAT_Y) {
-                window.clearInterval(floatAnimation);
-                alert('dive complete!');
-            }
-        }, 50);
+    var me = this;
     this.setState('float');
-}
+    me.moveY(Water.BOAT_Y, function() {
+        me.stars.forEach(function(star) {water.loadToBoat(star)});
+        me.stars = [];
+        me.dive();
+    });
+};
 Diver.prototype.goHarvest = function() {
     var star = water.getNearestStar(this.getXCoordinate(), this.getYCoordinate()),
         me = this;
+    this.setState('goHarvest');
     if(typeof star !== 'undefined') {
-        var goAnimation = window.setInterval(function() {
-            var left = parseFloat(me.diverEl.style.left)-me.diveSpeed*50;
-            me.diverEl.style.left = left+'px';
-            if(left < star.getXCoordinate()) {
-                window.clearInterval(goAnimation);
-                me.goHome();
-            }
-        }, 50);
-        this.stars.push(star);
+        me.moveX(star.getXCoordinate(), function() {
+            me.grabStar(star);
+            me.goHome();
+        });
         star.diver = this;
     }
-    this.setState('goHarvest');
-}
+    else {
+        alert('no stars!')
+    }
+};
 Diver.prototype.goHome = function() {
-    var me = this,
-        goAnimation = window.setInterval(function() {
-        var left = parseFloat(me.diverEl.style.left)+me.diveSpeed*50;
-        me.diverEl.style.left = left+'px';
-        if(left > Water.BOAT_X) {
-            window.clearInterval(goAnimation);
-            me.float();
-        }
-    }, 50);
+    var me = this;
     this.setState('goHome');
-}
+    me.moveX(Water.BOAT_X, function() {
+        me.float();
+    });
+};
+Diver.prototype.grabStar = function(star) {
+    this.stars.push(star);
+    star.starEl.style.zIndex = (this.diverEl.style.zIndex || 0) + 1;
+};
+Diver.prototype.moveX = function(dest, callback) {
+    if(dest === this.getXCoordinate()) {
+        return;
+    }
+    var me = this,
+        FRAME_INTERVAL = 50,
+        direction = dest < this.getXCoordinate() ? -1 : 1,
+        goAnimation = window.setInterval(function() {
+            var left = me.getXCoordinate()+direction*me.diveSpeed*FRAME_INTERVAL;
+            me.diverEl.style.left = left+'px';
+            me.stars.forEach(function(star) {star.moveTo(left+direction*30, me.getYCoordinate()+10)});
+            if(direction*(left - dest) > 0) {
+                window.clearInterval(goAnimation);
+                if(typeof callback === 'function') {
+                    callback();
+                }
+            }
+        }, FRAME_INTERVAL);
+};
+Diver.prototype.moveY = function(dest, callback) {
+    if(dest === this.getYCoordinate()) {
+        return;
+    }
+    var me = this,
+        FRAME_INTERVAL = 50,
+        direction = dest < this.getYCoordinate() ? -1 : 1,
+        goAnimation = window.setInterval(function() {
+            var top = me.getYCoordinate()+direction*me.diveSpeed*FRAME_INTERVAL;
+            me.diverEl.style.top = top+'px';
+            me.stars.forEach(function(star) {star.moveTo(me.getXCoordinate()+5, top-15)});
+            if(direction*(top - dest) > 0) {
+                window.clearInterval(goAnimation);
+                if(typeof callback === 'function') {
+                    callback();
+                }
+            }
+        }, FRAME_INTERVAL);
+};

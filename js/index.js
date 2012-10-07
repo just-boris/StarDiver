@@ -3,10 +3,10 @@ Water = function() {
     var me = this,
         waterEl = document.getElementById('water'),
         addDiverBtn = document.getElementById('addDiver'),
-        deleteDiverBtn = document.getElementById('deleteDiver');
+        deleteDiverBtn = document.getElementById('deleteDiver'),
+        boatEl = this.boatEl = document.getElementById('boat');
         this.stars = []; this.divers = [];
     waterEl.addEventListener('click', function(event) {
-        console.log([event.offsetY, event.offsetX])
         if (event.detail !== 1) return;
         me.stars.push(new Star(
             waterEl,
@@ -26,12 +26,17 @@ Water.prototype.getNearestStar = function(x, y) {
     var minDist, star;
     this.stars.forEach(function(item, index, items) {
         var dist = Math.abs(x - item.getXCoordinate());
-        if(!(minDist < Math.abs(dist))) {
+        if(!(minDist < Math.abs(dist)) && typeof item.diver === 'undefined') {
             minDist = dist;
             star = item;
         }
     });
     return star;
+};
+Water.prototype.loadToBoat = function(star) {
+    this.boatEl.className = 'loaded';
+    this.stars = this.stars.filter(function(item) {return item !== star});
+    star.starEl.parentNode.removeChild(star.starEl);
 };
 Water.BOAT_X = 620;
 Water.BOAT_Y = 0;

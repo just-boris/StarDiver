@@ -20,6 +20,10 @@ Star.prototype.fall = function() {
     }, 10);
     this.falling = true;
 };
+Star.prototype.moveTo = function(x, y) {
+    this.starEl.style.left = x+'px';
+    this.starEl.style.top = y+'px';
+}
 Star.prototype.getXCoordinate = function() {
     return parseFloat(this.starEl.style.left);
 };

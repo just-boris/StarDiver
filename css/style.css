@@ -35,55 +35,69 @@
     margin: 0 auto;
     width: 720px;
     height: 600px;
+    padding-top: 100px;
 }
     #water {
         position: relative;
-        margin-top: 100px;
+
         height: 500px;
         width: 100%;
     }
 
-    #water .star {
+        #water .star {
+            position: absolute;
+            width: 46px;
+            height: 43px;
+            margin-left: -23px;
+            margin-top: -22px;
+        }
+
+        #water .star1 { background: url(../images/tf-star1.png); }
+        #water .star2 { background: url(../images/tf-star2.png); }
+        #water .star3 { background: url(../images/tf-star3.png); }
+        #water .star4 { background: url(../images/tf-star4.png); }
+        #water .star5 { background: url(../images/tf-star5.png); }
+        #water .star6 { background: url(../images/tf-star6.png); }
+        #water .star7 { background: url(../images/tf-star7.png); }
+        #water .star8 { background: url(../images/tf-star8.png); }
+        #water .star9 { background: url(../images/tf-star9.png); }
+        #water .star10 { background: url(../images/tf-star10.png); }
+
+        #water .diver {
+            position: absolute;
+        }
+
+        #water .diver.diverTros {
+            width: 46px;
+            height: 73px;
+            margin-left: -42px;
+            margin-top: -36px;
+            background: url(../images/Diver-tros.png);
+        }
+        #water .diver.diverGoHarvest {
+            width: 66px;
+            height: 63px;
+            margin-left: -33px;
+            margin-top: -26px;
+            background: url(../images/Diver-go-harvest.png);
+        }
+        #water .diver.diverGoHome {
+            width: 66px;
+            height: 63px;
+            margin-left: -33px;
+            margin-top: -26px;
+            background: url(../images/Diver-go-home.png);
+        }
+
+    #boat {
+        display: none;
+        width: 70px;
+        height: 38px;
+        background: url(../images/ship-load.png);
         position: absolute;
-        width: 46px;
-        height: 43px;
-        margin-left: -23px;
-        margin-top: -22px;
+        top: 23px;
+        left: 613px;
     }
-
-    #water .star1 { background: url(../images/tf-star1.png); }
-    #water .star2 { background: url(../images/tf-star2.png); }
-    #water .star3 { background: url(../images/tf-star3.png); }
-    #water .star4 { background: url(../images/tf-star4.png); }
-    #water .star5 { background: url(../images/tf-star5.png); }
-    #water .star6 { background: url(../images/tf-star6.png); }
-    #water .star7 { background: url(../images/tf-star7.png); }
-    #water .star8 { background: url(../images/tf-star8.png); }
-    #water .star9 { background: url(../images/tf-star9.png); }
-    #water .star10 { background: url(../images/tf-star10.png); }
-
-    #water .diver {
-        position: absolute;
-    }
-
-    #water .diver.diverTros {
-        width: 46px;
-        height: 73px;
-        margin-left: -42px;
-        margin-top: -36px;
-        background: url(../images/Diver-tros.png);
-    }
-    #water .diver.diverGoHarvest {
-        width: 66px;
-        height: 63px;
-        margin-left: -33px;
-        margin-top: -26px;
-        background: url(../images/Diver-go-harvest.png);
-    }
-    #water .diver.diverGoHome {
-        width: 66px;
-        height: 63px;
-        margin-left: -33px;
-        margin-top: -26px;
-        background: url(../images/Diver-go-home.png);
-    }
+        #boat.loaded {
+            display: block;
+        }
