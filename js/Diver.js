@@ -54,12 +54,22 @@ Diver.prototype.goHarvest = function() {
     if(typeof star !== 'undefined') {
         me.moveX(star.getXCoordinate(), function() {
             me.grabStar(star);
-            me.goHome();
+            if(me.stars.length < 2) {
+                me.goHarvest();
+            }
+            else {
+                me.goHome();
+            }
         });
         star.diver = this;
     }
     else {
-        alert('no stars!')
+        if(me.stars.length > 0) {
+            me.goHome();
+        }
+        else {
+            alert('no stars!');
+        }
     }
 };
 Diver.prototype.goHome = function() {

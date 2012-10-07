@@ -1,7 +1,7 @@
 Water = function() {
 
     var me = this,
-        waterEl = document.getElementById('water'),
+        waterEl = this.waterEl = document.getElementById('water'),
         addDiverBtn = document.getElementById('addDiver'),
         deleteDiverBtn = document.getElementById('deleteDiver'),
         boatEl = this.boatEl = document.getElementById('boat');
@@ -31,7 +31,17 @@ Water.prototype.getNearestStar = function(x, y) {
             star = item;
         }
     });
-    return star;
+    if(typeof star !== 'undefined' && this.checkVisibilityRange(star)) {
+        return star;
+    }
+};
+Water.prototype.checkVisibilityRange = function(star) {
+    var maxRange = 0;
+    this.divers.forEach(function(diver) {
+        maxRange = Math.max(maxRange, diver.getXCoordinate());
+    });
+    return (maxRange - star.getXCoordinate()) < this.waterEl.offsetWidth/3;
+
 };
 Water.prototype.loadToBoat = function(star) {
     this.boatEl.className = 'loaded';
