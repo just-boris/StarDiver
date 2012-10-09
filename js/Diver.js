@@ -68,7 +68,7 @@ Diver.prototype.goHarvest = function() {
             me.goHome();
         }
         else {
-            alert('no stars!');
+            water.addFreeDiver(this);
         }
     }
 };
@@ -83,6 +83,12 @@ Diver.prototype.grabStar = function(star) {
     this.stars.push(star);
     star.starEl.style.zIndex = (this.diverEl.style.zIndex || 0) + 1;
 };
+Diver.prototype.exploreNewStar = function() {
+    var newStar = water.getNearestStar(this.getXCoordinate(), this.getYCoordinate());
+    if(typeof newStar !== 'undefined') {
+        water.onFoundNewStar(newStar);
+    }
+};
 Diver.prototype.moveX = function(dest, callback) {
     if(dest === this.getXCoordinate()) {
         return;
@@ -92,6 +98,7 @@ Diver.prototype.moveX = function(dest, callback) {
         direction = dest < this.getXCoordinate() ? -1 : 1,
         goAnimation = window.setInterval(function() {
             var left = me.getXCoordinate()+direction*me.diveSpeed*FRAME_INTERVAL;
+            me.exploreNewStar();
             me.diverEl.style.left = left+'px';
             me.stars.forEach(function(star) {star.moveTo(left+direction*30, me.getYCoordinate()+10)});
             if(direction*(left - dest) > 0) {

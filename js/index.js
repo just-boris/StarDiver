@@ -5,7 +5,7 @@ Water = function() {
         addDiverBtn = document.getElementById('addDiver'),
         deleteDiverBtn = document.getElementById('deleteDiver'),
         boatEl = this.boatEl = document.getElementById('boat');
-        this.stars = []; this.divers = [];
+        this.stars = []; this.divers = []; this.freeDivers = [];
     waterEl.addEventListener('click', function(event) {
         if (event.detail !== 1) return;
         me.stars.push(new Star(
@@ -26,7 +26,9 @@ Water.prototype.getNearestStar = function(x, y) {
     var minDist, star;
     this.stars.forEach(function(item, index, items) {
         var dist = Math.abs(x - item.getXCoordinate());
-        if(!(minDist < Math.abs(dist)) && typeof item.diver === 'undefined') {
+        if(!(minDist < Math.abs(dist)) &&
+            typeof item.diver === 'undefined' &&
+            item.falling === false) {
             minDist = dist;
             star = item;
         }
@@ -36,13 +38,21 @@ Water.prototype.getNearestStar = function(x, y) {
     }
 };
 Water.prototype.checkVisibilityRange = function(star) {
-    var maxRange = 0;
+    var maxRange = Number.POSITIVE_INFINITY;
     this.divers.forEach(function(diver) {
-        maxRange = Math.max(maxRange, diver.getXCoordinate());
+        maxRange = Math.min(maxRange, diver.getXCoordinate());
     });
     return (maxRange - star.getXCoordinate()) < this.waterEl.offsetWidth/3;
-
 };
+Water.prototype.addFreeDiver = function(diver) {
+    this.freeDivers.push(diver);
+}
+Water.prototype.onFoundNewStar = function(star) {
+    if(this.freeDivers.length > 0) {
+        var diver = this.freeDivers.shift();
+        diver.goHarvest();
+    }
+}
 Water.prototype.loadToBoat = function(star) {
     this.boatEl.className = 'loaded';
     this.stars = this.stars.filter(function(item) {return item !== star});
