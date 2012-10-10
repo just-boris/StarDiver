@@ -27,6 +27,22 @@ Utils = {
         }
     },
 
-    isIE: /(msie)/.test(window.navigator.userAgent.toLowerCase())
+    getElementOffset: function(element) {
+        var top = element.offsetTop, left = element.offsetLeft;
+        while(element.offsetParent !== null) {
+            element = element.offsetParent;
+            top += element.offsetTop;
+            left += element.offsetLeft;
+        }
+        return [top, left];
+    },
+
+    isIE: /(msie)/.test(window.navigator.userAgent.toLowerCase()),
+
+    Array : {
+        sortBy : function(sorter) {
+
+        }
+    }
 
 };

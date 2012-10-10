@@ -3,14 +3,14 @@ function Diver(container) {
     var diverEl = this.diverEl = document.createElement('div');
     diverEl.style.top = Water.BOAT_Y+'px';
     diverEl.style.left = Water.BOAT_X+'px';
-    this.stars = [];
+    this.stars = []; this.plannedStars = [];
     container.appendChild(diverEl);
+    this.setStateClass('dive')
     this.dive();
 }
-Diver.prototype.setState = function(state) {
+Diver.prototype.setStateClass = function(state) {
     var suffix;
-    this.state = state;
-    switch (this.state){
+    switch (state){
         case 'float':
         case 'dive':
             suffix = 'Tros';
@@ -23,7 +23,7 @@ Diver.prototype.setState = function(state) {
         break;
     }
     this.diverEl.className = 'diver diver'+suffix;
-}
+};
 Diver.prototype.getXCoordinate = function() {
     return parseFloat(this.diverEl.style.left);
 };
@@ -33,14 +33,13 @@ Diver.prototype.getYCoordinate = function() {
 Diver.prototype.diveSpeed = 100/1000;
 Diver.prototype.dive = function() {
     var me = this;
-    this.setState('dive');
     me.moveY(me.container.offsetHeight-me.diverEl.offsetHeight, function() {
+        me.setStateClass('goHarvest')
         me.goHarvest();
     });
 };
 Diver.prototype.float = function() {
     var me = this;
-    this.setState('float');
     me.moveY(Water.BOAT_Y, function() {
         me.stars.forEach(function(star) {water.loadToBoat(star)});
         me.stars = [];
@@ -48,12 +47,14 @@ Diver.prototype.float = function() {
     });
 };
 Diver.prototype.goHarvest = function() {
-    var star = water.getNearestStar(this.getXCoordinate(), this.getYCoordinate()),
-        me = this;
-    this.setState('goHarvest');
-    if(typeof star !== 'undefined') {
-        me.moveX(star.getXCoordinate(), function() {
-            me.grabStar(star);
+    this.planStars(water.getNearStars(
+            this.getXCoordinate(),
+            2 - (this.plannedStars.length + this.stars.length)
+    ));
+    var me = this;
+    if(this.plannedStars.length > 0) {
+        me.moveX(this.plannedStars[0].getXCoordinate(), function() {
+            me.grabStar(me.plannedStars[0]);
             if(me.stars.length < 2) {
                 me.goHarvest();
             }
@@ -61,32 +62,50 @@ Diver.prototype.goHarvest = function() {
                 me.goHome();
             }
         });
-        star.diver = this;
     }
     else {
         if(me.stars.length > 0) {
             me.goHome();
         }
         else {
-            water.addFreeDiver(this);
+            me.wait();
         }
     }
 };
 Diver.prototype.goHome = function() {
     var me = this;
-    this.setState('goHome');
     me.moveX(Water.BOAT_X, function() {
         me.float();
     });
 };
+Diver.prototype.wait = function() {
+    var me = this,
+        waiting = window.setInterval(function() {
+        if(me.plannedStars.length > 0) {
+            window.clearInterval(waiting);
+            me.goHarvest();
+        }
+    }, 50);
+};
+Diver.prototype.planStars = function(stars) {
+    var count = 0;
+    while (count < stars.length && this.plannedStars.length + this.stars.length < 2) {
+        stars[count].diver = this;
+        this.plannedStars.push(stars[count]);
+        count++;
+    }
+    return count;
+};
 Diver.prototype.grabStar = function(star) {
-    this.stars.push(star);
+    var newStar = this.plannedStars.shift();
+    if(star !== newStar) throw new Error('stars mismatch');
+    this.stars.push(newStar);
     star.starEl.style.zIndex = (this.diverEl.style.zIndex || 0) + 1;
 };
 Diver.prototype.exploreNewStar = function() {
-    var newStar = water.getNearestStar(this.getXCoordinate(), this.getYCoordinate());
-    if(typeof newStar !== 'undefined') {
-        water.onFoundNewStar(newStar);
+    var newStars = water.getNearStars(this.getXCoordinate(), 1);
+    if(newStars.length > 0) {
+        water.onFoundNewStar(newStars[0]);
     }
 };
 Diver.prototype.moveX = function(dest, callback) {
@@ -108,6 +127,7 @@ Diver.prototype.moveX = function(dest, callback) {
                 }
             }
         }, FRAME_INTERVAL);
+    me.setStateClass(direction === -1 ? 'goHarvest' : 'goHome');
 };
 Diver.prototype.moveY = function(dest, callback) {
     if(dest === this.getYCoordinate()) {
@@ -127,4 +147,5 @@ Diver.prototype.moveY = function(dest, callback) {
                 }
             }
         }, FRAME_INTERVAL);
+    me.setStateClass('float');
 };
