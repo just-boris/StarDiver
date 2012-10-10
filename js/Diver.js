@@ -47,6 +47,7 @@ Diver.prototype.float = function() {
     });
 };
 Diver.prototype.goHarvest = function() {
+    //NOTE gotten stars will be removed from queue
     this.planStars(water.getNearStars(
             this.getXCoordinate(),
             2 - (this.plannedStars.length + this.stars.length)
@@ -89,7 +90,7 @@ Diver.prototype.wait = function() {
 };
 Diver.prototype.planStars = function(stars) {
     var count = 0;
-    while (count < stars.length && this.plannedStars.length + this.stars.length < 2) {
+    while (count < stars.length) {
         stars[count].diver = this;
         this.plannedStars.push(stars[count]);
         count++;
@@ -103,9 +104,9 @@ Diver.prototype.grabStar = function(star) {
     star.starEl.style.zIndex = (this.diverEl.style.zIndex || 0) + 1;
 };
 Diver.prototype.exploreNewStar = function() {
-    var newStars = water.getNearStars(this.getXCoordinate(), 1);
+    var newStars = water.getNewStars(this.getXCoordinate());
     if(newStars.length > 0) {
-        water.onFoundNewStar(newStars[0]);
+        water.onFoundNewStars(newStars);
     }
 };
 Diver.prototype.moveX = function(dest, callback) {

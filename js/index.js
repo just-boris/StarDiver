@@ -25,47 +25,62 @@ Water = function() {
     }, false);
 };
 Water.prototype.getNearStars = function(x, count) {
-    var me = this,
-    visibleStars = this.stars.filter(function(star) {
-        return typeof star.diver === "undefined" &&
-            star.falling === false &&
-            me.checkVisibilityRange(star);
-    });
-    /*if(visibleStars.length === 0) {
+    var me = this, visibleStars;
+    if(this.starQueue.length > 0) {
         visibleStars = this.starQueue;
-    }*/
+    }
+    else {
+        visibleStars = this.stars.filter(function(star) {
+            return typeof star.diver === "undefined" &&
+                star.falling === false &&
+                me.checkVisibilityRange(star);
+        });
+    }
     visibleStars.sort(function(star1, star2) {
         return Math.abs(x - star1.getXCoordinate()) - Math.abs(x - star2.getXCoordinate());
     });
-    return visibleStars.slice(0, count);
+    return visibleStars.splice(0, count);
 };
-Water.prototype.getNewStars = function(x, count) {
-
+Water.prototype.getNewStars = function(x) {
+    var me = this,
+    visibleStars = this.stars.filter(function(star) {
+        return me.starQueue.indexOf(star) === -1 &&
+            typeof star.diver === "undefined" &&
+            star.falling === false &&
+            me.inVisibleRange(x, star);
+    });
+    return visibleStars;
+};
+Water.prototype.inVisibleRange = function(x, star) {
+    return Math.abs(x - star.getXCoordinate()) < this.waterEl.offsetWidth/3;
 };
 Water.prototype.checkVisibilityRange = function(star) {
     var maxRange = Number.POSITIVE_INFINITY;
     this.divers.forEach(function(diver) {
         maxRange = Math.min(maxRange, diver.getXCoordinate());
     });
-    return (maxRange - star.getXCoordinate()) < this.waterEl.offsetWidth/3;
+    return this.inVisibleRange(maxRange, star);
 };
-Water.prototype.onFoundNewStar = function(star) {
-    if(!this.checkVisibilityRange(star)) return;
-    var x = star.getXCoordinate(),
-        freeDivers = this.divers.filter(function(diver) {
-        return diver.stars.length + diver.plannedStars.length < 2;
-    });
-    if(freeDivers.length > 0) {
-        freeDivers.sort(function(diver1, diver2) {
-            return Math.abs(x - diver1.getXCoordinate()) - Math.abs(x - diver2.getXCoordinate());
-        });
-        freeDivers[0].planStars([star]);
-    }
-    /*else {
-        if(this.starQueue.indexOf(star) === -1) {
-            this.starQueue.push(star);
+Water.prototype.onFoundNewStars = function(stars) {
+    var me = this;
+    stars.forEach(function(star) {
+        if(!me.checkVisibilityRange(star)) return;
+        var x = star.getXCoordinate(),
+            freeDivers = me.divers.filter(function(diver) {
+                return diver.stars.length + diver.plannedStars.length < 2;
+            });
+        if(freeDivers.length > 0) {
+            freeDivers.sort(function(diver1, diver2) {
+                return Math.abs(x - diver1.getXCoordinate()) - Math.abs(x - diver2.getXCoordinate());
+            });
+            freeDivers[0].planStars([star]);
         }
-    }*/
+        else {
+            if(me.starQueue.indexOf(star) === -1) {
+                me.starQueue.push(star);
+            }
+        }
+    });
 };
 Water.prototype.loadToBoat = function(star) {
     this.boatEl.className = 'loaded';
