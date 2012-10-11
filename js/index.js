@@ -36,20 +36,17 @@ Water.prototype.getNearStars = function(x, count) {
                 me.checkVisibilityRange(star);
         });
     }
-    visibleStars.sort(function(star1, star2) {
-        return Math.abs(x - star1.getXCoordinate()) - Math.abs(x - star2.getXCoordinate());
-    });
+    visibleStars.sort(Star.getDistanceComparator(x));
     return visibleStars.splice(0, count);
 };
 Water.prototype.getNewStars = function(x) {
-    var me = this,
-    visibleStars = this.stars.filter(function(star) {
+    var me = this;
+    return this.stars.filter(function(star) {
         return me.starQueue.indexOf(star) === -1 &&
             typeof star.diver === "undefined" &&
             star.falling === false &&
             me.inVisibleRange(x, star);
     });
-    return visibleStars;
 };
 Water.prototype.inVisibleRange = function(x, star) {
     return Math.abs(x - star.getXCoordinate()) < this.waterEl.offsetWidth/3;

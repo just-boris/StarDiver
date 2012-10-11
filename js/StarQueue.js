@@ -1,3 +1,0 @@
-function StarQueue() {
-    this.foundedStars = [];
-}

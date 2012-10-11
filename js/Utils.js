@@ -37,12 +37,6 @@ Utils = {
         return [top, left];
     },
 
-    isIE: /(msie)/.test(window.navigator.userAgent.toLowerCase()),
-
-    Array : {
-        sortBy : function(sorter) {
-
-        }
-    }
+    isIE: /(msie)/.test(window.navigator.userAgent.toLowerCase())
 
 };

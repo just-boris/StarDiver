@@ -34,7 +34,12 @@ Diver.prototype.diveSpeed = 100/1000;
 Diver.prototype.dive = function() {
     var me = this;
     me.moveY(me.container.offsetHeight-me.diverEl.offsetHeight, function() {
-        me.setStateClass('goHarvest')
+        me.setStateClass('goHarvest');
+        //NOTE gotten stars will be removed from queue
+        me.planStars(water.getNearStars(
+            me.getXCoordinate(),
+            2 - (me.plannedStars.length + me.stars.length)
+        ));
         me.goHarvest();
     });
 };
@@ -47,12 +52,11 @@ Diver.prototype.float = function() {
     });
 };
 Diver.prototype.goHarvest = function() {
-    //NOTE gotten stars will be removed from queue
-    this.planStars(water.getNearStars(
-            this.getXCoordinate(),
-            2 - (this.plannedStars.length + this.stars.length)
-    ));
     var me = this;
+    if(this.plannedStars.length > 1) {
+        //sort by distance of this diver
+        this.plannedStars.sort(Star.getDistanceComparator(this.getXCoordinate())).reverse();
+    }
     if(this.plannedStars.length > 0) {
         me.moveX(this.plannedStars[0].getXCoordinate(), function() {
             me.grabStar(me.plannedStars[0]);
