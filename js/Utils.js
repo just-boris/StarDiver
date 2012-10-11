@@ -37,6 +37,10 @@ Utils = {
         return [top, left];
     },
 
-    isIE: /(msie)/.test(window.navigator.userAgent.toLowerCase())
+    isIE: /(msie)/.test(window.navigator.userAgent.toLowerCase()),
+
+    removeFromArray : function(array, item) {
+        return array.filter(function(i) {return i != item});
+    }
 
 };

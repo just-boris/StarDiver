@@ -1,12 +1,16 @@
 function Star(container, top, left) {
     this.container = container;
-    var starEl = this.starEl = document.createElement('div');
-    starEl.className = 'star star'+Math.floor(Math.random()*10+1);
+    var starEl = this.starEl = document.createElement('div'),
+        weight = Math.floor(Math.random()*10+1);
+    starEl.className = 'star star'+weight;
     starEl.style.top = top+'px';
     starEl.style.left = left+'px';
     container.appendChild(starEl);
     this.fall();
-};
+    this.getWeight = function() {
+        return weight;
+    }
+}
 Star.prototype.fallSpeed = 80/1000;
 Star.prototype.fall = function() {
     var me = this,
@@ -25,7 +29,7 @@ Star.prototype.fall = function() {
 Star.prototype.moveTo = function(x, y) {
     this.starEl.style.left = x+'px';
     this.starEl.style.top = y+'px';
-}
+};
 Star.prototype.getXCoordinate = function() {
     return parseFloat(this.starEl.style.left);
 };
@@ -36,4 +40,4 @@ Star.getDistanceComparator = function(x) {
     return function(star1, star2) {
         return Math.abs(x - star1.getXCoordinate()) - Math.abs(x - star2.getXCoordinate());
     }
-}
+};

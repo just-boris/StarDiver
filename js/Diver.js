@@ -3,11 +3,19 @@ function Diver(container) {
     var diverEl = this.diverEl = document.createElement('div');
     diverEl.style.top = Water.BOAT_Y+'px';
     diverEl.style.left = Water.BOAT_X+'px';
+    this._intervals = [];
     this.stars = []; this.plannedStars = [];
+    this.airSupply = 20000; this.weight = 0;
     container.appendChild(diverEl);
-    this.setStateClass('dive')
+    this.setStateClass('dive');
     this.dive();
 }
+Diver.prototype.destroy = function() {
+    this._intervals.forEach(function(i) {window.clearInterval(i);});
+    this.stars.forEach(function(star) {delete star.diver});
+    this.plannedStars.forEach(function(star) {delete star.diver});
+    this.diverEl.parentNode.removeChild(this.diverEl);
+};
 Diver.prototype.setStateClass = function(state) {
     var suffix;
     switch (state){
@@ -30,7 +38,16 @@ Diver.prototype.getXCoordinate = function() {
 Diver.prototype.getYCoordinate = function() {
     return parseFloat(this.diverEl.style.top);
 };
-Diver.prototype.diveSpeed = 100/1000;
+//TODO in production speed must be 20
+Diver.prototype.diveSpeed = 20/1000;
+Diver.prototype.baseAirConsume = 50/1000;
+Diver.prototype.consumeAir = function(time) {
+    this.airSupply -= (this.baseAirConsume + this.weight/1000)*time;
+    if(this.airSupply < 0) {
+        alert('я утонул!');
+        water.removeDiver(this);
+    }
+};
 Diver.prototype.dive = function() {
     var me = this;
     me.moveY(me.container.offsetHeight-me.diverEl.offsetHeight, function() {
@@ -47,6 +64,7 @@ Diver.prototype.float = function() {
     var me = this;
     me.moveY(Water.BOAT_Y, function() {
         me.stars.forEach(function(star) {water.loadToBoat(star)});
+        me.weight = 0;
         me.stars = [];
         me.dive();
     });
@@ -73,7 +91,7 @@ Diver.prototype.goHarvest = function() {
             me.goHome();
         }
         else {
-            me.wait();
+            me.waitUnderwater();
         }
     }
 };
@@ -83,14 +101,17 @@ Diver.prototype.goHome = function() {
         me.float();
     });
 };
-Diver.prototype.wait = function() {
+Diver.prototype.waitUnderwater = function() {
     var me = this,
         waiting = window.setInterval(function() {
-        if(me.plannedStars.length > 0) {
-            window.clearInterval(waiting);
-            me.goHarvest();
-        }
+            me.consumeAir(Diver.FRAME_INTERVAL);
+            if(me.plannedStars.length > 0) {
+                me._intervals = Utils.removeFromArray(me._intervals, waiting);
+                window.clearInterval(waiting);
+                me.goHarvest();
+            }
     }, 50);
+    this._intervals.push(waiting);
 };
 Diver.prototype.planStars = function(stars) {
     var count = 0;
@@ -104,6 +125,7 @@ Diver.prototype.planStars = function(stars) {
 Diver.prototype.grabStar = function(star) {
     var newStar = this.plannedStars.shift();
     if(star !== newStar) throw new Error('stars mismatch');
+    this.weight += star.getWeight();
     this.stars.push(newStar);
     star.starEl.style.zIndex = (this.diverEl.style.zIndex || 0) + 1;
 };
@@ -118,20 +140,22 @@ Diver.prototype.moveX = function(dest, callback) {
         return;
     }
     var me = this,
-        FRAME_INTERVAL = 50,
         direction = dest < this.getXCoordinate() ? -1 : 1,
         goAnimation = window.setInterval(function() {
-            var left = me.getXCoordinate()+direction*me.diveSpeed*FRAME_INTERVAL;
+            var left = me.getXCoordinate()+direction*me.diveSpeed*Diver.FRAME_INTERVAL;
             me.exploreNewStar();
+            me.consumeAir(Diver.FRAME_INTERVAL);
             me.diverEl.style.left = left+'px';
             me.stars.forEach(function(star) {star.moveTo(left+direction*30, me.getYCoordinate()+10)});
             if(direction*(left - dest) > 0) {
+                me._intervals = Utils.removeFromArray(me._intervals, goAnimation);
                 window.clearInterval(goAnimation);
                 if(typeof callback === 'function') {
                     callback();
                 }
             }
-        }, FRAME_INTERVAL);
+        }, Diver.FRAME_INTERVAL);
+    this._intervals.push(goAnimation);
     me.setStateClass(direction === -1 ? 'goHarvest' : 'goHome');
 };
 Diver.prototype.moveY = function(dest, callback) {
@@ -139,18 +163,21 @@ Diver.prototype.moveY = function(dest, callback) {
         return;
     }
     var me = this,
-        FRAME_INTERVAL = 50,
         direction = dest < this.getYCoordinate() ? -1 : 1,
         goAnimation = window.setInterval(function() {
-            var top = me.getYCoordinate()+direction*me.diveSpeed*FRAME_INTERVAL;
+            var top = me.getYCoordinate()+direction*me.diveSpeed*Diver.FRAME_INTERVAL;
+            me.consumeAir(Diver.FRAME_INTERVAL);
             me.diverEl.style.top = top+'px';
             me.stars.forEach(function(star) {star.moveTo(me.getXCoordinate()+5, top-15)});
             if(direction*(top - dest) > 0) {
+                me._intervals = Utils.removeFromArray(me._intervals, goAnimation);
                 window.clearInterval(goAnimation);
                 if(typeof callback === 'function') {
                     callback();
                 }
             }
-        }, FRAME_INTERVAL);
+        }, Diver.FRAME_INTERVAL);
+        this._intervals.push(goAnimation);
     me.setStateClass('float');
 };
+Diver.FRAME_INTERVAL = 50;

@@ -18,11 +18,14 @@ Water = function() {
     }, false);
     addDiverBtn.addEventListener('click', function(event) {
         if (event.detail !== 1) {
-            console.log('something went wrong');
             return;
         }
         me.divers.push(new Diver(waterEl));
     }, false);
+};
+Water.prototype.removeDiver = function(diver) {
+    Utils.removeFromArray(this.divers, diver);
+    diver.destroy();
 };
 Water.prototype.getNearStars = function(x, count) {
     var me = this, visibleStars;
