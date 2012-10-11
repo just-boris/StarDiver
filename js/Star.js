@@ -21,7 +21,7 @@ Star.prototype.fall = function() {
         if(top > me.container.offsetHeight-me.starEl.offsetHeight-delta) {
             window.clearInterval(fallAnimation);
             me.falling = false;
-            water.onFoundNewStars([me]);
+            water.onFoundNewStar(me);
         }
     }, 10);
     this.falling = true;

@@ -129,12 +129,6 @@ Diver.prototype.grabStar = function(star) {
     this.stars.push(newStar);
     star.starEl.style.zIndex = (this.diverEl.style.zIndex || 0) + 1;
 };
-Diver.prototype.exploreNewStar = function() {
-    var newStars = water.getNewStars(this.getXCoordinate());
-    if(newStars.length > 0) {
-        water.onFoundNewStars(newStars);
-    }
-};
 Diver.prototype.moveX = function(dest, callback) {
     if(dest === this.getXCoordinate()) {
         return;
@@ -143,7 +137,7 @@ Diver.prototype.moveX = function(dest, callback) {
         direction = dest < this.getXCoordinate() ? -1 : 1,
         goAnimation = window.setInterval(function() {
             var left = me.getXCoordinate()+direction*me.diveSpeed*Diver.FRAME_INTERVAL;
-            me.exploreNewStar();
+            water.exploreNewStars(me.getXCoordinate());
             me.consumeAir(Diver.FRAME_INTERVAL);
             me.diverEl.style.left = left+'px';
             me.stars.forEach(function(star) {star.moveTo(left+direction*30, me.getYCoordinate()+10)});

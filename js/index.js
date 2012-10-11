@@ -42,14 +42,15 @@ Water.prototype.getNearStars = function(x, count) {
     visibleStars.sort(Star.getDistanceComparator(x));
     return visibleStars.splice(0, count);
 };
-Water.prototype.getNewStars = function(x) {
-    var me = this;
-    return this.stars.filter(function(star) {
+Water.prototype.exploreNewStars = function(x) {
+    var me = this,
+        newStars = this.stars.filter(function(star) {
         return me.starQueue.indexOf(star) === -1 &&
             typeof star.diver === "undefined" &&
             star.falling === false &&
             me.inVisibleRange(x, star);
     });
+    newStars.forEach(function(star) {me.onFoundNewStar(star)});
 };
 Water.prototype.inVisibleRange = function(x, star) {
     return Math.abs(x - star.getXCoordinate()) < this.waterEl.offsetWidth/3;
@@ -61,26 +62,24 @@ Water.prototype.checkVisibilityRange = function(star) {
     });
     return this.inVisibleRange(maxRange, star);
 };
-Water.prototype.onFoundNewStars = function(stars) {
+Water.prototype.onFoundNewStar = function(star) {
     var me = this;
-    stars.forEach(function(star) {
-        if(!me.checkVisibilityRange(star)) return;
-        var x = star.getXCoordinate(),
-            freeDivers = me.divers.filter(function(diver) {
-                return diver.stars.length + diver.plannedStars.length < 2;
-            });
-        if(freeDivers.length > 0) {
-            freeDivers.sort(function(diver1, diver2) {
-                return Math.abs(x - diver1.getXCoordinate()) - Math.abs(x - diver2.getXCoordinate());
-            });
-            freeDivers[0].planStars([star]);
+    if(!me.checkVisibilityRange(star)) return;
+    var x = star.getXCoordinate(),
+        freeDivers = me.divers.filter(function(diver) {
+            return diver.stars.length + diver.plannedStars.length < 2;
+        });
+    if(freeDivers.length > 0) {
+        freeDivers.sort(function(diver1, diver2) {
+            return Math.abs(x - diver1.getXCoordinate()) - Math.abs(x - diver2.getXCoordinate());
+        });
+        freeDivers[0].planStars([star]);
+    }
+    else {
+        if(me.starQueue.indexOf(star) === -1) {
+            me.starQueue.push(star);
         }
-        else {
-            if(me.starQueue.indexOf(star) === -1) {
-                me.starQueue.push(star);
-            }
-        }
-    });
+    }
 };
 Water.prototype.loadToBoat = function(star) {
     this.boatEl.className = 'loaded';
