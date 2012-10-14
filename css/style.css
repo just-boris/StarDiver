@@ -1,3 +1,6 @@
+#preloader {
+    display: none;
+}
 .wrapper {
     width: 762px;
     height: 685px;
