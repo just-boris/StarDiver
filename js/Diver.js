@@ -41,6 +41,12 @@ Diver.prototype.getYCoordinate = function() {
 //TODO in production speed must be 20
 Diver.prototype.diveSpeed = 20/1000;
 Diver.prototype.baseAirConsume = 50/1000;
+Diver.prototype.floatSteps = [
+    {depth: (Water.BOTTOM_Y-Water.BOAT_Y)*2/3, stop: 5},
+    {depth: (Water.BOTTOM_Y-Water.BOAT_Y)/3, stop: 10},
+    {depth: (Water.BOTTOM_Y-Water.BOAT_Y)/5, stop: 15},
+    {depth: 0, stop: 0}
+];
 Diver.prototype.consumeAir = function(time) {
     this.airSupply -= (this.baseAirConsume + this.weight/1000)*time;
     if(this.airSupply < 0) {
@@ -48,9 +54,12 @@ Diver.prototype.consumeAir = function(time) {
         water.removeDiver(this);
     }
 };
+Diver.prototype.compensateBuoyancy = function() {
+    this.airSupply -= 50 + this.weight*50;
+};
 Diver.prototype.dive = function() {
     var me = this;
-    me.moveY(me.container.offsetHeight-me.diverEl.offsetHeight, function() {
+    me.moveY(Water.BOTTOM_Y, function() {
         me.setStateClass('goHarvest');
         //NOTE gotten stars will be removed from queue
         me.planStars(water.getNearStars(
@@ -61,13 +70,25 @@ Diver.prototype.dive = function() {
     });
 };
 Diver.prototype.float = function() {
-    var me = this;
-    me.moveY(Water.BOAT_Y, function() {
-        me.stars.forEach(function(star) {water.loadToBoat(star)});
-        me.weight = 0;
-        me.stars = [];
-        me.dive();
-    });
+    var me = this,
+        floatStep = function(index) {
+            me.moveY(me.floatSteps[index].depth, function() {
+                window.setTimeout(function() {
+                    if(index === me.floatSteps.length-1) {
+                        me.stars.forEach(function(star) {water.loadToBoat(star)});
+                        me.weight = 0;
+                        me.stars = [];
+                        //TODO make charging air
+                        me.dive();
+                    }
+                    else {
+                        floatStep(++index);
+                    }
+                }, me.floatSteps[index].stop*1000)
+            });
+        };
+    me.compensateBuoyancy();
+    floatStep(0);
 };
 Diver.prototype.goHarvest = function() {
     var me = this;

@@ -10,11 +10,13 @@ Water = function() {
         //ignore multi-clicks
         if (event.detail !== 1) return;
         var offset = Utils.getElementOffset(event.target);
-        me.stars.push(new Star(
-            waterEl,
-            event.clientY - offset[0],
-            event.clientX - offset[1]
-        ));
+        if((event.clientY - offset[0]) < Water.BOTTOM_Y+22) {
+            me.stars.push(new Star(
+                waterEl,
+                event.clientY - offset[0],
+                event.clientX - offset[1]
+            ));
+        }
     }, false);
     addDiverBtn.addEventListener('click', function(event) {
         if (event.detail !== 1) {
@@ -88,5 +90,7 @@ Water.prototype.loadToBoat = function(star) {
 };
 Water.BOAT_X = 620;
 Water.BOAT_Y = 0;
+Water.BOTTOM_X = 620;
+Water.BOTTOM_Y = 427;
 
 window.addEventListener('load', function() {this.water = new Water();}, false);
