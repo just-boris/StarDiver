@@ -9,11 +9,11 @@ Water = function() {
         //ignore multi-clicks
         if (event.detail !== 1) return;
         var offset = Utils.getElementOffset(event.target);
-        if((event.clientY - offset[0]) < Water.BOTTOM_Y+22) {
+        if((event.pageY - offset[0]) < Water.BOTTOM_Y+22) {
             me.stars.push(new Star(
                 waterEl,
-                event.clientY - offset[0],
-                event.clientX - offset[1]
+                event.pageY - offset[0],
+                event.pageX - offset[1]
             ));
         }
     }, false);
