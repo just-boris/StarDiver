@@ -16,6 +16,15 @@ Diver.prototype.destroy = function() {
     this.plannedStars.forEach(function(star) {delete star.diver});
     this.diverEl.parentNode.removeChild(this.diverEl);
 };
+Diver.prototype.addBalloon = function() {
+    this.balloonEl = document.createElement('div');
+    this.balloonEl.className = 'balloon';
+    this.diverEl.appendChild(this.balloonEl);
+};
+Diver.prototype.removeBalloon = function() {
+    this.balloonEl.parentNode.removeChild(this.balloonEl);
+    delete this.balloonEl;
+};
 Diver.prototype.setStateClass = function(state) {
     var suffix;
     switch (state){
@@ -47,10 +56,16 @@ Diver.prototype.floatSteps = [
     {depth: (Water.BOTTOM_Y-Water.BOAT_Y)/5, stop: 15},
     {depth: 0, stop: 0}
 ];
+Diver.prototype.isEnoughAir = function() {
+    return this.airSupply > 10950;
+};
 Diver.prototype.consumeAir = function(time) {
     this.airSupply -= (this.baseAirConsume + this.weight/1000)*time;
+    if(typeof this.balloonEl === 'undefined' && !this.isEnoughAir()) {
+        this.addBalloon();
+    }
     if(this.airSupply < 0) {
-        alert('я утонул!');
+        console.warn('you lost a diver');
         water.removeDiver(this);
     }
 };
@@ -69,17 +84,28 @@ Diver.prototype.dive = function() {
         me.goHarvest();
     });
 };
+Diver.prototype.onBoatActions = function() {
+    var me = this;
+    me.stars.forEach(function(star) {water.loadToBoat(star)});
+    me.weight = 0;
+    me.stars = [];
+    if(me.isEnoughAir()) {
+        me.dive();
+    }
+    else {
+        me.removeBalloon();
+        water.rechargeAir(me, function() {
+            me.dive();
+        })
+    }
+};
 Diver.prototype.float = function() {
     var me = this,
         floatStep = function(index) {
             me.moveY(me.floatSteps[index].depth, function() {
                 window.setTimeout(function() {
                     if(index === me.floatSteps.length-1) {
-                        me.stars.forEach(function(star) {water.loadToBoat(star)});
-                        me.weight = 0;
-                        me.stars = [];
-                        //TODO make charging air
-                        me.dive();
+                        me.onBoatActions();
                     }
                     else {
                         floatStep(++index);
@@ -126,7 +152,10 @@ Diver.prototype.waitUnderwater = function() {
     var me = this,
         waiting = window.setInterval(function() {
             me.consumeAir(Diver.FRAME_INTERVAL);
-            if(me.plannedStars.length > 0) {
+            if(!me.isEnoughAir()) {
+                me.float();
+            }
+            else if(me.plannedStars.length > 0) {
                 me._intervals = Utils.removeFromArray(me._intervals, waiting);
                 window.clearInterval(waiting);
                 me.goHarvest();

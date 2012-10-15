@@ -92,6 +92,15 @@
             background: url(../images/Diver-go-home.png);
         }
 
+            #water .diver .balloon {
+                position: absolute;
+                top: -65px;
+                left: -121px;
+                width: 121px;
+                height: 65px;
+                background: url(../images/thought.png);
+            }
+
     #boat {
         display: none;
         width: 70px;

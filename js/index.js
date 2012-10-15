@@ -1,11 +1,10 @@
 Water = function() {
-
     var me = this,
         waterEl = this.waterEl = document.getElementById('water'),
         addDiverBtn = document.getElementById('addDiver'),
         deleteDiverBtn = document.getElementById('deleteDiver'),
         boatEl = this.boatEl = document.getElementById('boat');
-        this.stars = []; this.divers = []; this.starQueue = [];
+        this.stars = []; this.divers = []; this.starQueue = []; this.rechargeQueue = [];
     waterEl.addEventListener('click', function(event) {
         //ignore multi-clicks
         if (event.detail !== 1) return;
@@ -88,9 +87,30 @@ Water.prototype.loadToBoat = function(star) {
     this.stars = this.stars.filter(function(item) {return item !== star});
     star.starEl.parentNode.removeChild(star.starEl);
 };
+Water.prototype.rechargeAir = function(diver, callback) {
+    this.rechargeQueue.push({diver: diver, callback: callback});
+    this.rechargeCycle();
+};
+Water.prototype.rechargeCycle = function() {
+    var me = this;
+    if(this.rechargeQueue.length === 1) {
+        window.setTimeout(function() {
+            var cycle = me.rechargeQueue.shift();
+            cycle.diver.airSupply = 20000;
+            if(typeof cycle.callback === 'function') {
+                cycle.callback.apply(cycle.diver);
+            }
+            if(me.rechargeQueue.length > 0) {
+                me.rechargeCycle();
+            }
+        }, Water.rechargeDuration);
+    }
+};
+Water.rechargeDuration = 20/3*1000;
 Water.BOAT_X = 620;
 Water.BOAT_Y = 0;
 Water.BOTTOM_X = 620;
 Water.BOTTOM_Y = 427;
 
+Water.prototype.version = "0.3.1";
 window.addEventListener('load', function() {this.water = new Water();}, false);
