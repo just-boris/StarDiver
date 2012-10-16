@@ -57,7 +57,7 @@ Diver.prototype.floatSteps = [
     {depth: 0, stop: 0}
 ];
 Diver.prototype.isEnoughAir = function() {
-    return this.airSupply > 10950;
+    return this.airSupply > 9500;
 };
 Diver.prototype.consumeAir = function(time) {
     this.airSupply -= (this.baseAirConsume + this.weight/1000)*time;
@@ -103,6 +103,8 @@ Diver.prototype.float = function() {
     var me = this,
         floatStep = function(index) {
             me.moveY(me.floatSteps[index].depth, function() {
+                var stopTime = me.floatSteps[index].stop*1000
+                me.consumeAir(stopTime);
                 window.setTimeout(function() {
                     if(index === me.floatSteps.length-1) {
                         me.onBoatActions();
@@ -110,7 +112,7 @@ Diver.prototype.float = function() {
                     else {
                         floatStep(++index);
                     }
-                }, me.floatSteps[index].stop*1000)
+                }, stopTime);
             });
         };
     me.compensateBuoyancy();
@@ -154,6 +156,8 @@ Diver.prototype.waitUnderwater = function() {
             me.consumeAir(Diver.FRAME_INTERVAL);
             if(!me.isEnoughAir()) {
                 me.float();
+                me._intervals = Utils.removeFromArray(me._intervals, waiting);
+                window.clearInterval(waiting);
             }
             else if(me.plannedStars.length > 0) {
                 me._intervals = Utils.removeFromArray(me._intervals, waiting);

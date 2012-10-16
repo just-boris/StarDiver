@@ -18,14 +18,28 @@ Water = function() {
         }
     }, false);
     addDiverBtn.addEventListener('click', function(event) {
-        if (event.detail !== 1) {
-            return;
-        }
         me.divers.push(new Diver(waterEl));
+    }, false);
+    deleteDiverBtn.addEventListener('click', function(event) {
+        if(me.rechargeQueue.length > 1) {
+            var queueObj = me.rechargeQueue[1];
+            me.rechargeQueue = Utils.removeFromArray(me.rechargeQueue, queueObj);
+            me.removeDiver(queueObj.diver);
+        }
+
+        /*else {
+            var divers = me.listFreeDivers()
+                .filter(function(diver) {
+                    return diver.getYCoordinate() === Water.BOAT_Y;
+                });
+            if(divers.length > 0) {
+                me.removeDiver(divers[0]);
+            }
+        }*/
     }, false);
 };
 Water.prototype.removeDiver = function(diver) {
-    Utils.removeFromArray(this.divers, diver);
+    this.divers = Utils.removeFromArray(this.divers, diver);
     diver.destroy();
 };
 Water.prototype.getNearStars = function(x, count) {
@@ -67,12 +81,16 @@ Water.prototype.onFoundNewStar = function(star) {
     var me = this;
     if(!me.checkVisibilityRange(star)) return;
     var x = star.getXCoordinate(),
-        freeDivers = me.divers.filter(function(diver) {
-            return diver.stars.length + diver.plannedStars.length < 2;
-        });
+        freeDivers = me.listFreeDivers();
     if(freeDivers.length > 0) {
         freeDivers.sort(function(diver1, diver2) {
-            return Math.abs(x - diver1.getXCoordinate()) - Math.abs(x - diver2.getXCoordinate());
+            var dx1 = Math.abs(x - diver1.getXCoordinate()),
+                dx2 = Math.abs(x - diver2.getXCoordinate()),
+                result = dx1 - dx2;
+            if(result === 0) {
+                result = diver2.getYCoordinate() - diver1.getYCoordinate();
+            }
+            return result
         });
         freeDivers[0].planStars([star]);
     }
@@ -81,6 +99,11 @@ Water.prototype.onFoundNewStar = function(star) {
             me.starQueue.push(star);
         }
     }
+};
+Water.prototype.listFreeDivers = function() {
+    return this.divers.filter(function(diver) {
+        return (diver.stars.length + diver.plannedStars.length < 2) && typeof diver.balloonEl !== "undefined";
+    });
 };
 Water.prototype.loadToBoat = function(star) {
     this.boatEl.className = 'loaded';
@@ -92,18 +115,21 @@ Water.prototype.rechargeAir = function(diver, callback) {
     this.rechargeCycle();
 };
 Water.prototype.rechargeCycle = function() {
-    var me = this;
+    var me = this,
+        doRecharge = function() {
+            window.setTimeout(function() {
+                var cycle = me.rechargeQueue.shift();
+                cycle.diver.airSupply = 20000;
+                if(typeof cycle.callback === 'function') {
+                    cycle.callback.apply(cycle.diver);
+                }
+                if(me.rechargeQueue.length > 0) {
+                    doRecharge();
+                }
+            }, Water.rechargeDuration);
+        };
     if(this.rechargeQueue.length === 1) {
-        window.setTimeout(function() {
-            var cycle = me.rechargeQueue.shift();
-            cycle.diver.airSupply = 20000;
-            if(typeof cycle.callback === 'function') {
-                cycle.callback.apply(cycle.diver);
-            }
-            if(me.rechargeQueue.length > 0) {
-                me.rechargeCycle();
-            }
-        }, Water.rechargeDuration);
+        doRecharge();
     }
 };
 Water.rechargeDuration = 20/3*1000;
@@ -112,5 +138,5 @@ Water.BOAT_Y = 0;
 Water.BOTTOM_X = 620;
 Water.BOTTOM_Y = 427;
 
-Water.prototype.version = "0.3.1";
+Water.prototype.version = "0.3.2";
 window.addEventListener('load', function() {this.water = new Water();}, false);
