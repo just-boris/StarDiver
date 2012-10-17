@@ -1,14 +1,13 @@
 Water = function() {
     var me = this,
+        diverIndex = 0,
         waterEl = this.waterEl = document.getElementById('water'),
         addDiverBtn = document.getElementById('addDiver'),
         deleteDiverBtn = document.getElementById('deleteDiver'),
         boatEl = this.boatEl = document.getElementById('boat');
         this.stars = []; this.divers = []; this.starQueue = []; this.rechargeQueue = [];
     waterEl.addEventListener('click', function(event) {
-        //ignore multi-clicks
-        if (event.detail !== 1) return;
-        var offset = Utils.getElementOffset(event.target);
+        var offset = Utils.getElementOffset(waterEl);
         if((event.pageY - offset[0]) < Water.BOTTOM_Y+22) {
             me.stars.push(new Star(
                 waterEl,
@@ -18,7 +17,7 @@ Water = function() {
         }
     }, false);
     addDiverBtn.addEventListener('click', function(event) {
-        me.divers.push(new Diver(waterEl));
+        me.divers.push(new Diver(waterEl, ++diverIndex));
     }, false);
     deleteDiverBtn.addEventListener('click', function(event) {
         if(me.rechargeQueue.length > 1) {

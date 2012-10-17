@@ -1,6 +1,8 @@
-function Diver(container) {
+function Diver(container, index) {
     this.container = container;
+    this.index = index;
     var diverEl = this.diverEl = document.createElement('div');
+    diverEl.style.zIndex = index*2;
     diverEl.style.top = Water.BOAT_Y+'px';
     diverEl.style.left = Water.BOAT_X+'px';
     this._intervals = [];
@@ -103,7 +105,7 @@ Diver.prototype.float = function() {
     var me = this,
         floatStep = function(index) {
             me.moveY(me.floatSteps[index].depth, function() {
-                var stopTime = me.floatSteps[index].stop*1000
+                var stopTime = me.floatSteps[index].stop*1000;
                 me.consumeAir(stopTime);
                 window.setTimeout(function() {
                     if(index === me.floatSteps.length-1) {
@@ -181,7 +183,7 @@ Diver.prototype.grabStar = function(star) {
     if(star !== newStar) throw new Error('stars mismatch');
     this.weight += star.getWeight();
     this.stars.push(newStar);
-    star.starEl.style.zIndex = (this.diverEl.style.zIndex || 0) + 1;
+    star.starEl.style.zIndex = 1 + (this.diverEl.style.zIndex || 0);
 };
 Diver.prototype.moveX = function(dest, callback) {
     if(dest === this.getXCoordinate()) {
