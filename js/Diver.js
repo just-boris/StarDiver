@@ -98,7 +98,7 @@ Diver.prototype.onBoatActions = function() {
         me.removeBalloon();
         water.rechargeAir(me, function() {
             me.dive();
-        })
+        });
     }
 };
 Diver.prototype.float = function() {
@@ -156,6 +156,7 @@ Diver.prototype.waitUnderwater = function() {
     var me = this,
         waiting = window.setInterval(function() {
             me.consumeAir(Diver.FRAME_INTERVAL);
+            water.exploreNewStars(me.getXCoordinate(), me.getYCoordinate());
             if(!me.isEnoughAir()) {
                 me.float();
                 me._intervals = Utils.removeFromArray(me._intervals, waiting);
@@ -193,7 +194,7 @@ Diver.prototype.moveX = function(dest, callback) {
         direction = dest < this.getXCoordinate() ? -1 : 1,
         goAnimation = window.setInterval(function() {
             var left = me.getXCoordinate()+direction*me.diveSpeed*Diver.FRAME_INTERVAL;
-            water.exploreNewStars(me.getXCoordinate());
+            water.exploreNewStars(me.getXCoordinate(), me.getYCoordinate());
             me.consumeAir(Diver.FRAME_INTERVAL);
             me.diverEl.style.left = left+'px';
             me.stars.forEach(function(star) {star.moveTo(left+direction*30, me.getYCoordinate()+10)});

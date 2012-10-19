@@ -47,28 +47,32 @@ Water.prototype.getNearStars  = function(x, count) {
         stars = this.starQueue;
     if(stars.length === 0) {
         stars = this.starCollection.getFreeStars().filter(function(star) {
-            return  star.falling === false &&
-                me.diverCollection.checkVisibilityRange(star);
+            return  me.diverCollection.checkVisibilityRange(star);
         });
     }
+    stars = stars.filter(function(star) {
+        me.diverCollection.reachAfterFalling(x, Water.BOTTOM_Y, star);
+    });
+    stars.forEach(function(star) {me.starQueue = Utils.removeFromArray(me.starQueue, star);});
     StarCollection.orderByDist(stars, x);
     return stars.splice(0, count);
 };
-Water.prototype.exploreNewStars = function(x) {
+Water.prototype.exploreNewStars = function(x, y) {
     var me = this,
         newStars = this.starCollection.getFreeStars().filter(function(star) {
             return me.starQueue.indexOf(star) === -1 &&
-                star.falling === false &&
-                me.diverCollection.inVisibleRange(x, star);
+                me.diverCollection.inVisibleRange(x, y, star);
         });
     newStars.forEach(function(star) {me.onFoundNewStar(star);});
 };
 Water.prototype.onFoundNewStar = function(star) {
-    var me = this;
-    if(!this.diverCollection.checkVisibilityRange(star)) {
-        return;
+    var me = this,
+        freeDivers = this.diverCollection.listFreeDivers();
+    if(star.falling) {
+        freeDivers = freeDivers.filter(function(diver) {
+            return me.diverCollection.reachAfterFalling(diver.getXCoordinate(), diver.getYCoordinate(), star);
+        });
     }
-    var freeDivers = this.diverCollection.listFreeDivers();
     if(freeDivers.length > 0) {
         freeDivers = DiverCollection.orderByDist(freeDivers, star.getXCoordinate());
         freeDivers[0].planStars([star]);
@@ -77,6 +81,11 @@ Water.prototype.onFoundNewStar = function(star) {
         if(me.starQueue.indexOf(star) === -1) {
             me.starQueue.push(star);
         }
+    }
+};
+Water.prototype.onFallNewStar = function(star) {
+    if(this.diverCollection.checkVisibilityRange(star)) {
+        this.onFoundNewStar(star);
     }
 };
 Water.prototype.loadToBoat = function(star) {

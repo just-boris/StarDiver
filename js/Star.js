@@ -7,21 +7,21 @@ function Star(container, top, left) {
     starEl.style.left = left+'px';
     container.appendChild(starEl);
     this.fall();
+    this.endPoint = this.container.offsetHeight-this.starEl.offsetHeight-Math.random()*20;
     this.getWeight = function() {
         return weight;
-    }
+    };
 }
 Star.prototype.fallSpeed = 80/1000;
 Star.prototype.fall = function() {
     var me = this,
-        delta = Math.random()*20,
         fallAnimation = window.setInterval(function() {
         var top = parseFloat(me.starEl.style.top)+me.fallSpeed*10;
         me.starEl.style.top = top+'px';
-        if(top > me.container.offsetHeight-me.starEl.offsetHeight-delta) {
+        if(top > me.endPoint) {
             window.clearInterval(fallAnimation);
             me.falling = false;
-            water.onFoundNewStar(me);
+            water.onFallNewStar(me);
         }
     }, 10);
     this.falling = true;
