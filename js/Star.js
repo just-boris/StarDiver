@@ -36,8 +36,3 @@ Star.prototype.getXCoordinate = function() {
 Star.prototype.getYCoordinate = function() {
     return parseFloat(this.starEl.style.top);
 };
-Star.getDistanceComparator = function(x) {
-    return function(star1, star2) {
-        return Math.abs(x - star1.getXCoordinate()) - Math.abs(x - star2.getXCoordinate());
-    }
-};

@@ -68,7 +68,7 @@ Diver.prototype.consumeAir = function(time) {
     }
     if(this.airSupply < 0) {
         console.warn('you lost a diver');
-        water.removeDiver(this);
+        water.diverCollection.remove(this);
     }
 };
 Diver.prototype.compensateBuoyancy = function() {
@@ -124,7 +124,7 @@ Diver.prototype.goHarvest = function() {
     var me = this;
     if(this.plannedStars.length > 1) {
         //sort by distance of this diver
-        this.plannedStars.sort(Star.getDistanceComparator(this.getXCoordinate())).reverse();
+        this.plannedStars.sort(StarCollection.getDistanceComparator(this.getXCoordinate())).reverse();
     }
     if(this.plannedStars.length > 0) {
         me.moveX(this.plannedStars[0].getXCoordinate(), function() {
