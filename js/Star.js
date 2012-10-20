@@ -1,4 +1,6 @@
-function Star(container, top, left) {
+/*global water: true */
+(function() {"use strict";
+var Star = window.Star = function(container, top, left) {
     this.container = container;
     var starEl = this.starEl = document.createElement('div'),
         weight = Math.floor(Math.random()*10+1);
@@ -11,7 +13,7 @@ function Star(container, top, left) {
     this.getWeight = function() {
         return weight;
     };
-}
+};
 Star.prototype.fallSpeed = 80/1000;
 Star.prototype.fall = function() {
     var me = this,
@@ -36,3 +38,4 @@ Star.prototype.getXCoordinate = function() {
 Star.prototype.getYCoordinate = function() {
     return parseFloat(this.starEl.style.top);
 };
+})();

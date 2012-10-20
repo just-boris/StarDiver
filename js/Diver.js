@@ -1,6 +1,7 @@
-function Diver(container, index) {
+/*global water: true, Water: true, StarCollection: true, Utils: true*/
+(function() {"use strict";
+var Diver = window.Diver = function(container, index) {
     this.container = container;
-    this.index = index;
     var diverEl = this.diverEl = document.createElement('div');
     diverEl.style.zIndex = index*2;
     diverEl.style.top = Water.BOAT_Y+'px';
@@ -11,11 +12,11 @@ function Diver(container, index) {
     container.appendChild(diverEl);
     this.setStateClass('dive');
     this.dive();
-}
+};
 Diver.prototype.destroy = function() {
     this._intervals.forEach(function(i) {window.clearInterval(i);});
-    this.stars.forEach(function(star) {delete star.diver});
-    this.plannedStars.forEach(function(star) {delete star.diver});
+    this.stars.forEach(function(star) {delete star.diver;});
+    this.plannedStars.forEach(function(star) {delete star.diver;});
     this.diverEl.parentNode.removeChild(this.diverEl);
 };
 Diver.prototype.addBalloon = function() {
@@ -88,7 +89,7 @@ Diver.prototype.dive = function() {
 };
 Diver.prototype.onBoatActions = function() {
     var me = this;
-    me.stars.forEach(function(star) {water.loadToBoat(star)});
+    me.stars.forEach(function(star) {water.loadToBoat(star);});
     me.weight = 0;
     me.stars = [];
     if(me.isEnoughAir()) {
@@ -181,10 +182,12 @@ Diver.prototype.planStars = function(stars) {
 };
 Diver.prototype.grabStar = function(star) {
     var newStar = this.plannedStars.shift();
-    if(star !== newStar) throw new Error('stars mismatch');
+    if(star !== newStar) {
+        throw new Error('stars mismatch');
+    }
     this.weight += star.getWeight();
     this.stars.push(newStar);
-    star.starEl.style.zIndex = 1 + (this.diverEl.style.zIndex || 0);
+    star.starEl.style.zIndex = (parseInt(this.diverEl.style.zIndex, 10) || 0) + 1;
 };
 Diver.prototype.moveX = function(dest, callback) {
     if(dest === this.getXCoordinate()) {
@@ -197,7 +200,7 @@ Diver.prototype.moveX = function(dest, callback) {
             water.exploreNewStars(me.getXCoordinate(), me.getYCoordinate());
             me.consumeAir(Diver.FRAME_INTERVAL);
             me.diverEl.style.left = left+'px';
-            me.stars.forEach(function(star) {star.moveTo(left+direction*30, me.getYCoordinate()+10)});
+            me.stars.forEach(function(star) {star.moveTo(left+direction*30, me.getYCoordinate()+10);});
             if(direction*(left - dest) > 0) {
                 me._intervals = Utils.removeFromArray(me._intervals, goAnimation);
                 window.clearInterval(goAnimation);
@@ -219,7 +222,7 @@ Diver.prototype.moveY = function(dest, callback) {
             var top = me.getYCoordinate()+direction*me.diveSpeed*Diver.FRAME_INTERVAL;
             me.consumeAir(Diver.FRAME_INTERVAL);
             me.diverEl.style.top = top+'px';
-            me.stars.forEach(function(star) {star.moveTo(me.getXCoordinate()+5, top-15)});
+            me.stars.forEach(function(star) {star.moveTo(me.getXCoordinate()+5, top-15);});
             if(direction*(top - dest) > 0) {
                 me._intervals = Utils.removeFromArray(me._intervals, goAnimation);
                 window.clearInterval(goAnimation);
@@ -232,3 +235,4 @@ Diver.prototype.moveY = function(dest, callback) {
     me.setStateClass('float');
 };
 Diver.FRAME_INTERVAL = 50;
+})();

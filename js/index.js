@@ -2,7 +2,6 @@
 (function() {"use strict";
 var Water = window.Water = function() {
     var me = this,
-        diverIndex = 0,
         waterEl = this.waterEl = document.getElementById('water'),
         addDiverBtn = document.getElementById('addDiver'),
         deleteDiverBtn = document.getElementById('deleteDiver'),
@@ -31,15 +30,6 @@ var Water = window.Water = function() {
             queueObj = me.rechargeQueue.shift();
             me.diverCollection.remove(queueObj.diver);
         }
-        /*else {
-            var divers = me.listFreeDivers()
-                .filter(function(diver) {
-                    return diver.getYCoordinate() === Water.BOAT_Y;
-                });
-            if(divers.length > 0) {
-                me.removeDiver(divers[0]);
-            }
-        }*/
     }, false);
 };
 Water.prototype.getNearStars  = function(x, count) {
@@ -47,11 +37,11 @@ Water.prototype.getNearStars  = function(x, count) {
         stars = this.starQueue;
     if(stars.length === 0) {
         stars = this.starCollection.getFreeStars().filter(function(star) {
-            return  me.diverCollection.checkVisibilityRange(star);
+            return me.diverCollection.checkVisibilityRange(star);
         });
     }
     stars = stars.filter(function(star) {
-        me.diverCollection.reachAfterFalling(x, Water.BOTTOM_Y, star);
+        return !star.falling || me.diverCollection.reachAfterFalling(x, Water.BOTTOM_Y, star);
     });
     stars.forEach(function(star) {me.starQueue = Utils.removeFromArray(me.starQueue, star);});
     StarCollection.orderByDist(stars, x);
@@ -84,7 +74,7 @@ Water.prototype.onFoundNewStar = function(star) {
     }
 };
 Water.prototype.onFallNewStar = function(star) {
-    if(this.diverCollection.checkVisibilityRange(star)) {
+    if(!star.diver && this.diverCollection.checkVisibilityRange(star)) {
         this.onFoundNewStar(star);
     }
 };
