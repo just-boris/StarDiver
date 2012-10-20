@@ -110,6 +110,6 @@ Water.BOAT_Y = 0;
 Water.BOTTOM_X = 620;
 Water.BOTTOM_Y = 427;
 
-Water.prototype.version = "0.3.5";
+Water.prototype.version = "0.3.6";
 window.addEventListener('load', function() {this.water = new Water();}, false);
 })();
