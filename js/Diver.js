@@ -64,9 +64,6 @@ Diver.prototype.isEnoughAir = function() {
 };
 Diver.prototype.consumeAir = function(time) {
     this.airSupply -= (this.baseAirConsume + this.weight/1000)*time;
-    if(typeof this.balloonEl === 'undefined' && !this.isEnoughAir()) {
-        this.addBalloon();
-    }
     if(this.airSupply < 0) {
         console.warn('you lost a diver');
         water.diverCollection.remove(this);
@@ -96,7 +93,6 @@ Diver.prototype.onBoatActions = function() {
         me.dive();
     }
     else {
-        me.removeBalloon();
         water.rechargeAir(me, function() {
             me.dive();
         });
@@ -108,7 +104,9 @@ Diver.prototype.float = function() {
             me.moveY(me.floatSteps[index].depth, function() {
                 var stopTime = me.floatSteps[index].stop*1000;
                 me.consumeAir(stopTime);
+                me.addBalloon();
                 window.setTimeout(function() {
+                    me.removeBalloon();
                     if(index === me.floatSteps.length-1) {
                         me.onBoatActions();
                     }

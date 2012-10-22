@@ -73,11 +73,6 @@ Water.prototype.onFoundNewStar = function(star) {
         }
     }
 };
-Water.prototype.onFallNewStar = function(star) {
-    if(!star.diver && this.diverCollection.checkVisibilityRange(star)) {
-        this.onFoundNewStar(star);
-    }
-};
 Water.prototype.loadToBoat = function(star) {
     this.boatEl.className = 'loaded';
     this.starCollection.remove(star);
@@ -110,6 +105,6 @@ Water.BOAT_Y = 0;
 Water.BOTTOM_X = 620;
 Water.BOTTOM_Y = 427;
 
-Water.prototype.version = "0.3.6";
+Water.prototype.version = "0.4.1";
 window.addEventListener('load', function() {this.water = new Water();}, false);
 })();

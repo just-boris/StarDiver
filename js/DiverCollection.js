@@ -14,7 +14,7 @@ DiverCollection.prototype.remove = function(diver) {
 };
 DiverCollection.prototype.listFreeDivers = function() {
     return this.divers.filter(function(diver) {
-        return (diver.stars.length + diver.plannedStars.length < 2) && typeof diver.balloonEl === "undefined";
+        return (diver.stars.length + diver.plannedStars.length < 2) && diver.isEnoughAir();
     });
 };
 DiverCollection.prototype.inVisibleRange = function(x, y, star) {

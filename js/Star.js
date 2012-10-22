@@ -23,7 +23,6 @@ Star.prototype.fall = function() {
         if(top > me.endPoint) {
             window.clearInterval(fallAnimation);
             me.falling = false;
-            water.onFallNewStar(me);
         }
     }, 10);
     this.falling = true;
