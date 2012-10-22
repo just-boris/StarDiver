@@ -14,14 +14,14 @@ DiverCollection.prototype.remove = function(diver) {
 };
 DiverCollection.prototype.listFreeDivers = function() {
     return this.divers.filter(function(diver) {
-        return (diver.stars.length + diver.plannedStars.length < 2) && diver.isEnoughAir();
+        return diver.isFree();
     });
 };
 DiverCollection.prototype.inVisibleRange = function(x, y, star) {
-    return Math.sqrt(Utils.sqr(x - star.getXCoordinate())+Utils.sqr(y - star.getYCoordinate())) < this.container.offsetWidth/3;
+    return Math.sqrt(Utils.sqr(x - star.getXCoordinate())+Utils.sqr(y - star.getYCoordinate())) < Water.SEE_RANGE;
 };
 DiverCollection.prototype.reachAfterFalling = function(x, y, star) {
-    return (star.endPoint - star.getYCoordinate()) < 4*(x-star.getXCoordinate());
+    return (star.endPoint - star.getYCoordinate()) < Star.prototype.fallSpeed/Diver.prototype.diveSpeed*(x-star.getXCoordinate());
 };
 DiverCollection.prototype.checkVisibilityRange = function(star) {
     var me = this;

@@ -17,7 +17,9 @@ Diver.prototype.destroy = function() {
     this._intervals.forEach(function(i) {window.clearInterval(i);});
     this.stars.forEach(function(star) {delete star.diver;});
     this.plannedStars.forEach(function(star) {delete star.diver;});
-    this.diverEl.parentNode.removeChild(this.diverEl);
+    if(this.diverEl.parentNode) {
+        this.diverEl.parentNode.removeChild(this.diverEl);
+    }
 };
 Diver.prototype.addBalloon = function() {
     this.balloonEl = document.createElement('div');
@@ -25,8 +27,10 @@ Diver.prototype.addBalloon = function() {
     this.diverEl.appendChild(this.balloonEl);
 };
 Diver.prototype.removeBalloon = function() {
-    this.balloonEl.parentNode.removeChild(this.balloonEl);
-    delete this.balloonEl;
+    if(this.balloonEl) {
+        this.balloonEl.parentNode.removeChild(this.balloonEl);
+        delete this.balloonEl;
+    }
 };
 Diver.prototype.setStateClass = function(state) {
     var suffix;
@@ -59,6 +63,10 @@ Diver.prototype.floatSteps = [
     {depth: (Water.BOTTOM_Y-Water.BOAT_Y)/5, stop: 15},
     {depth: 0, stop: 0}
 ];
+Diver.prototype.explorerWaypoints = {
+    '1': 0 + Water.SEE_RANGE,
+    '-1': Water.WIDTH - Water.SEE_RANGE
+};
 Diver.prototype.isEnoughAir = function() {
     return this.airSupply > 9500;
 };
@@ -145,6 +153,19 @@ Diver.prototype.goHarvest = function() {
         }
     }
 };
+Diver.prototype.goExplore = function(direction) {
+    var me = this;
+    me.moveX(me.explorerWaypoints[direction.toString()], function() {
+        if(me.isFree()) {
+            me.goExplore(-1*direction);
+        }
+        else {
+            //resolve next wayfind by this method
+            water.dropExplorerFlag(me);
+            me.waitUnderwater();
+        }
+    });
+};
 Diver.prototype.goHome = function() {
     var me = this;
     me.moveX(Water.BOAT_X, function() {
@@ -157,7 +178,12 @@ Diver.prototype.waitUnderwater = function() {
             me.consumeAir(Diver.FRAME_INTERVAL);
             water.exploreNewStars(me.getXCoordinate(), me.getYCoordinate());
             if(!me.isEnoughAir()) {
-                me.float();
+                if(me.getXCoordinate() !== Water.BOAT_X) {
+                    me.goHome();
+                }
+                else {
+                    me.float();
+                }
                 me._intervals = Utils.removeFromArray(me._intervals, waiting);
                 window.clearInterval(waiting);
             }
@@ -166,8 +192,15 @@ Diver.prototype.waitUnderwater = function() {
                 window.clearInterval(waiting);
                 me.goHarvest();
             }
+            else if(water.getExplorerFlag(me)) {
+                me.goExplore(1);
+                window.clearInterval(waiting);
+            }
     }, 50);
     this._intervals.push(waiting);
+};
+Diver.prototype.isFree = function() {
+    return (this.stars.length + this.plannedStars.length < 2) && this.isEnoughAir();
 };
 Diver.prototype.planStars = function(stars) {
     var count = 0;
@@ -185,6 +218,7 @@ Diver.prototype.grabStar = function(star) {
     }
     this.weight += star.getWeight();
     this.stars.push(newStar);
+    star.starEl.className += ' hand'+this.stars.length;
     star.starEl.style.zIndex = (parseInt(this.diverEl.style.zIndex, 10) || 0) + 1;
 };
 Diver.prototype.moveX = function(dest, callback) {

@@ -67,6 +67,16 @@
         #water .star9 { background: url(../images/tf-star9.png); }
         #water .star10 { background: url(../images/tf-star10.png); }
 
+        #water .star.hand1 {
+            margin-left: -25px;
+            margin-top: -20px;
+        }
+
+        #water .star.hand2 {
+            margin-left: -21px;
+            margin-top: -24px;
+        }
+
         #water .diver {
             position: absolute;
         }

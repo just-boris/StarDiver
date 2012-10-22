@@ -32,6 +32,20 @@ var Water = window.Water = function() {
         }
     }, false);
 };
+Water.prototype.getExplorerFlag = function(diver) {
+    if(typeof this.diverExplorer === 'undefined') {
+        this.diverExplorer = diver;
+        return true;
+    }
+    else {
+        return false;
+    }
+};
+Water.prototype.dropExplorerFlag = function(diver) {
+    if(this.diverExplorer === diver) {
+        delete this.diverExplorer;
+    }
+};
 Water.prototype.getNearStars  = function(x, count) {
     var me = this,
         stars = this.starQueue;
@@ -57,17 +71,14 @@ Water.prototype.exploreNewStars = function(x, y) {
 };
 Water.prototype.onFoundNewStar = function(star) {
     var me = this,
-        freeDivers = this.diverCollection.listFreeDivers();
-    if(star.falling) {
-        freeDivers = freeDivers.filter(function(diver) {
+        freeDivers = this.diverCollection.listFreeDivers().filter(function(diver) {
             return me.diverCollection.reachAfterFalling(diver.getXCoordinate(), diver.getYCoordinate(), star);
         });
-    }
     if(freeDivers.length > 0) {
         freeDivers = DiverCollection.orderByDist(freeDivers, star.getXCoordinate());
         freeDivers[0].planStars([star]);
     }
-    else {
+    else if(!star.falling){
         if(me.starQueue.indexOf(star) === -1) {
             me.starQueue.push(star);
         }
@@ -104,6 +115,8 @@ Water.BOAT_X = 620;
 Water.BOAT_Y = 0;
 Water.BOTTOM_X = 620;
 Water.BOTTOM_Y = 427;
+Water.WIDTH = 720;
+Water.SEE_RANGE = Water.WIDTH/3;
 
 Water.prototype.version = "0.4.1";
 window.addEventListener('load', function() {this.water = new Water();}, false);
