@@ -29,10 +29,6 @@ var Utils = (function() {
             }
         },
 
-        sqr: function(x) {
-            return x*x;
-        },
-
         getElementOffset: function(element) {
             var top = element.offsetTop, left = element.offsetLeft;
             while(element.offsetParent !== null) {

@@ -1,4 +1,4 @@
-/*global water: true, Water: true, StarCollection: true, Utils: true*/
+/*global water: true, Water: true, StarCollection: true, Utils: true, console: true*/
 (function() {"use strict";
 var Diver = window.Diver = function(container, index) {
     this.container = container;
@@ -156,7 +156,7 @@ Diver.prototype.goHarvest = function() {
 Diver.prototype.goExplore = function(direction) {
     var me = this;
     me.moveX(me.explorerWaypoints[direction.toString()], function() {
-        if(me.isFree()) {
+        if(me.plannedStars.length === 0 && me.isEnoughAir()) {
             me.goExplore(-1*direction);
         }
         else {

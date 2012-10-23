@@ -1,4 +1,4 @@
-/*global Diver: true, Water: true, Utils: true*/
+/*global Diver: true, Water: true, Star: true, Utils: true*/
 (function() {"use strict";
 var DiverCollection = window.DiverCollection = function(container) {
     this.diverIndex = 0;
@@ -18,7 +18,7 @@ DiverCollection.prototype.listFreeDivers = function() {
     });
 };
 DiverCollection.prototype.inVisibleRange = function(x, y, star) {
-    return Math.sqrt(Utils.sqr(x - star.getXCoordinate())+Utils.sqr(y - star.getYCoordinate())) < Water.SEE_RANGE;
+    return Math.sqrt(Math.pow(x - star.getXCoordinate(), 2)+Math.pow(y - star.getYCoordinate(), 2)) < Water.SEE_RANGE;
 };
 DiverCollection.prototype.reachAfterFalling = function(x, y, star) {
     return (star.endPoint - star.getYCoordinate()) < Star.prototype.fallSpeed/Diver.prototype.diveSpeed*(x-star.getXCoordinate());

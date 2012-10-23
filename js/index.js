@@ -118,6 +118,6 @@ Water.BOTTOM_Y = 427;
 Water.WIDTH = 720;
 Water.SEE_RANGE = Water.WIDTH/3;
 
-Water.prototype.version = "0.4.1";
+Water.prototype.version = "0.4.2";
 window.addEventListener('load', function() {this.water = new Water();}, false);
 })();
