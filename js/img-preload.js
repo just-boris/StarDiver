@@ -1,4 +1,4 @@
-/*Preload images*/
+/*Utility script to preload images*/
 (function(){
     "use strict";
     var preLoads = [

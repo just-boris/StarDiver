@@ -1,3 +1,8 @@
+/* Global class to combining all components together
+ * It creates and deletes divers and stars,
+ * tells about new stars, fills scuba
+ * and includes some global constants
+ */
 /*global StarCollection: true, DiverCollection: true, Utils: true*/
 (function() {"use strict";
 var Water = window.Water = function() {
@@ -118,6 +123,6 @@ Water.BOTTOM_Y = 427;
 Water.WIDTH = 720;
 Water.SEE_RANGE = Water.WIDTH/3;
 
-Water.prototype.version = "0.4.2";
+Water.prototype.version = "0.4.3";
 window.addEventListener('load', function() {this.water = new Water();}, false);
 })();

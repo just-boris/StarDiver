@@ -1,3 +1,4 @@
+/*Object for diver management: counting, getting divers with different filters, checking diver's visible range*/
 /*global Diver: true, Water: true, Star: true, Utils: true*/
 (function() {"use strict";
 var DiverCollection = window.DiverCollection = function(container) {
@@ -29,6 +30,7 @@ DiverCollection.prototype.checkVisibilityRange = function(star) {
         return me.inVisibleRange(diver.getXCoordinate(), diver.getYCoordinate(),  star);
     });
 };
+//static sorter for divers
 DiverCollection.orderByDist = function(array, x) {
     return array.sort(function(diver1, diver2) {
         var dx1 = Math.abs(x - diver1.getXCoordinate()),

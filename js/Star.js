@@ -1,3 +1,4 @@
+/*Object represents star logic: fall and wait grab by diver */
 /*global water: true */
 (function() {"use strict";
 var Star = window.Star = function(container, top, left) {
@@ -10,6 +11,7 @@ var Star = window.Star = function(container, top, left) {
     container.appendChild(starEl);
     this.fall();
     this.endPoint = this.container.offsetHeight-this.starEl.offsetHeight-Math.random()*20;
+    //private property: available only through the getter
     this.getWeight = function() {
         return weight;
     };

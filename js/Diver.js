@@ -1,3 +1,4 @@
+/*Object represents diver logic: diving, carry stars, explore seabed*/
 /*global water: true, Water: true, StarCollection: true, Utils: true, console: true*/
 (function() {"use strict";
 var Diver = window.Diver = function(container, index) {
@@ -68,7 +69,26 @@ Diver.prototype.explorerWaypoints = {
     '-1': Water.WIDTH - Water.SEE_RANGE
 };
 Diver.prototype.isEnoughAir = function() {
-    return this.airSupply > 9500;
+    if(this.getYCoordinate() < Water.BOAT_Y) {
+        //on the boat: need air to longest dive
+        return this.airSupply > 9500;
+    }
+    else if(this.getYCoordinate() < Water.BOTTOM_Y) {
+        //diver is emerging: care doesn't need
+        return true;
+    }
+    else {
+        //on the floor: diver needs air to reach float point and emerge
+        var airNeed=0, me = this;
+        this.floatSteps.forEach(function(step) {
+            airNeed += step.stop*1000*me.baseAirConsume;
+        });
+        airNeed += (Math.abs(me.getXCoordinate() - Water.BOAT_X)+Water.BOTTOM_Y)/me.diveSpeed*(me.baseAirConsume+me.weight/1000);
+        //diver always must be ready to grab 10-rate star and move it to boat
+        airNeed += 2*me.getXCoordinate()/me.diveSpeed*(me.baseAirConsume+me.weight/1000*(2 - me.plannedStars.length - me.stars.length));
+        return this.airSupply > airNeed;
+    }
+
 };
 Diver.prototype.consumeAir = function(time) {
     this.airSupply -= (this.baseAirConsume + this.weight/1000)*time;

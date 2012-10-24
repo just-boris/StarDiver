@@ -1,8 +1,8 @@
+/*Object for star management: getting stars ready to grab and sort*/
 /*global Star: true, Utils: true*/
 (function() {"use strict";
 var StarCollection = window.StarCollection = function(container) {
     this.container = container;
-    this.starQueue = [];
     this.stars = [];
 };
 StarCollection.prototype.add = function(y, x) {
@@ -19,9 +19,11 @@ StarCollection.prototype.getFreeStars = function() {
         return typeof star.diver === "undefined";
     });
 };
+//static sorter for stars
 StarCollection.orderByDist = function(array, x) {
     return array.sort(StarCollection.getDistanceComparator(x));
 };
+//static compare function factory
 StarCollection.getDistanceComparator = function(x) {
     return function(star1, star2) {
         return Math.abs(x - star1.getXCoordinate()) - Math.abs(x - star2.getXCoordinate());
