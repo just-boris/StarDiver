@@ -18,17 +18,19 @@ DiverCollection.prototype.listFreeDivers = function() {
         return diver.isFree();
     });
 };
-DiverCollection.prototype.inVisibleRange = function(x, y, star) {
-    return Math.sqrt(Math.pow(x - star.getXCoordinate(), 2)+Math.pow(y - star.getYCoordinate(), 2)) < Water.SEE_RANGE;
-};
-DiverCollection.prototype.reachAfterFalling = function(x, y, star) {
-    return (star.endPoint - star.getYCoordinate()) < Star.prototype.fallSpeed/Diver.prototype.diveSpeed*(x-star.getXCoordinate());
-};
 DiverCollection.prototype.checkVisibilityRange = function(star) {
     var me = this;
     return this.divers.some(function(diver) {
         return me.inVisibleRange(diver.getXCoordinate(), diver.getYCoordinate(),  star);
     });
+};
+
+//TODO should move this methods to another objects?
+DiverCollection.prototype.inVisibleRange = function(x, y, star) {
+    return Math.sqrt(Math.pow(x - star.getXCoordinate(), 2)+Math.pow(y - star.getYCoordinate(), 2)) < Water.SEE_RANGE;
+};
+DiverCollection.prototype.reachAfterFalling = function(x, y, star) {
+    return (star.endPoint - star.getYCoordinate()) < Star.prototype.fallSpeed/Diver.prototype.diveSpeed*(x-star.getXCoordinate());
 };
 //static sorter for divers
 DiverCollection.orderByDist = function(array, x) {

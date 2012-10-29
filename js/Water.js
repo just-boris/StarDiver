@@ -93,7 +93,7 @@ Water.prototype.loadToBoat = function(star) {
     this.boatEl.className = 'loaded';
     this.starCollection.remove(star);
 };
-Water.prototype.rechargeAir = function(diver, callback) {
+Water.prototype.rechargeScuba = function(diver, callback) {
     this.rechargeQueue.push({diver: diver, callback: callback});
     this.rechargeCycle();
 };

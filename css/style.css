@@ -19,6 +19,7 @@
         border: 0;
         float: right;
         margin: 16px 0 0 16px;
+        outline: none;
     }
         #deleteDiver {
             background: url(../images/delete-diver.png);

@@ -55,7 +55,7 @@ Diver.prototype.getXCoordinate = function() {
 Diver.prototype.getYCoordinate = function() {
     return parseFloat(this.diverEl.style.top);
 };
-//TODO in production speed must be 20
+//TODO diveSpeed must be 20
 Diver.prototype.diveSpeed = 20/1000;
 Diver.prototype.baseAirConsume = 50/1000;
 Diver.prototype.floatSteps = [
@@ -104,7 +104,8 @@ Diver.prototype.dive = function() {
     var me = this;
     me.moveY(Water.BOTTOM_Y, function() {
         me.setStateClass('goHarvest');
-        //NOTE gotten stars will be removed from queue
+        //find and occupy nearest stars
+        //NOTE other divers can't see it
         me.planStars(water.getNearStars(
             me.getXCoordinate(),
             2 - (me.plannedStars.length + me.stars.length)
@@ -121,7 +122,7 @@ Diver.prototype.onBoatActions = function() {
         me.dive();
     }
     else {
-        water.rechargeAir(me, function() {
+        water.rechargeScuba(me, function() {
             me.dive();
         });
     }
@@ -150,12 +151,13 @@ Diver.prototype.float = function() {
 Diver.prototype.goHarvest = function() {
     var me = this;
     if(this.plannedStars.length > 1) {
-        //sort by distance of this diver
+        //sort by distance from this diver
+        //optimal strategy - grab first farther star then nearer
         this.plannedStars.sort(StarCollection.getDistanceComparator(this.getXCoordinate())).reverse();
     }
     if(this.plannedStars.length > 0) {
         me.moveX(this.plannedStars[0].getXCoordinate(), function() {
-            me.grabStar(me.plannedStars[0]);
+            me.grabStar();
             if(me.stars.length < 2) {
                 me.goHarvest();
             }
@@ -214,6 +216,7 @@ Diver.prototype.waitUnderwater = function() {
             }
             else if(water.getExplorerFlag(me)) {
                 me.goExplore(1);
+                me._intervals = Utils.removeFromArray(me._intervals, waiting);
                 window.clearInterval(waiting);
             }
     }, 50);
@@ -231,15 +234,12 @@ Diver.prototype.planStars = function(stars) {
     }
     return count;
 };
-Diver.prototype.grabStar = function(star) {
+Diver.prototype.grabStar = function() {
     var newStar = this.plannedStars.shift();
-    if(star !== newStar) {
-        throw new Error('stars mismatch');
-    }
-    this.weight += star.getWeight();
+    this.weight += newStar.getWeight();
     this.stars.push(newStar);
-    star.starEl.className += ' hand'+this.stars.length;
-    star.starEl.style.zIndex = (parseInt(this.diverEl.style.zIndex, 10) || 0) + 1;
+    newStar.starEl.className += ' hand'+this.stars.length;
+    newStar.starEl.style.zIndex = (parseInt(this.diverEl.style.zIndex, 10) || 0) + 1;
 };
 Diver.prototype.moveX = function(dest, callback) {
     if(dest === this.getXCoordinate()) {
