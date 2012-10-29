@@ -13,6 +13,9 @@ DiverCollection.prototype.remove = function(diver) {
     this.divers = Utils.removeFromArray(this.divers, diver);
     diver.destroy();
 };
+DiverCollection.prototype.getTotalCount = function() {
+    return this.divers.length;
+};
 DiverCollection.prototype.listFreeDivers = function() {
     return this.divers.filter(function(diver) {
         return diver.isFree();
@@ -30,7 +33,7 @@ DiverCollection.prototype.inVisibleRange = function(x, y, star) {
     return Math.sqrt(Math.pow(x - star.getXCoordinate(), 2)+Math.pow(y - star.getYCoordinate(), 2)) < Water.SEE_RANGE;
 };
 DiverCollection.prototype.reachAfterFalling = function(x, y, star) {
-    return (star.endPoint - star.getYCoordinate()) < Star.prototype.fallSpeed/Diver.prototype.diveSpeed*(x-star.getXCoordinate());
+    return Star.prototype.fallSpeed/Diver.prototype.diveSpeed*(star.endPoint - star.getYCoordinate()) < (x-star.getXCoordinate());
 };
 //static sorter for divers
 DiverCollection.orderByDist = function(array, x) {

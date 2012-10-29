@@ -118,13 +118,15 @@ Diver.prototype.onBoatActions = function() {
     me.stars.forEach(function(star) {water.loadToBoat(star);});
     me.weight = 0;
     me.stars = [];
-    if(me.isEnoughAir()) {
-        me.dive();
-    }
-    else {
-        water.rechargeScuba(me, function() {
+    if(water.diverMayContinue(this)) {
+        if(me.isEnoughAir()) {
             me.dive();
-        });
+        }
+        else {
+            water.rechargeScuba(me, function() {
+                me.dive();
+            });
+        }
     }
 };
 Diver.prototype.float = function() {
@@ -178,6 +180,12 @@ Diver.prototype.goHarvest = function() {
 Diver.prototype.goExplore = function(direction) {
     var me = this;
     me.moveX(me.explorerWaypoints[direction.toString()], function() {
+        //find and occupy nearest stars
+        //NOTE other divers can't see it
+        me.planStars(water.getNearStars(
+            me.getXCoordinate(),
+            2 - (me.plannedStars.length + me.stars.length)
+        ));
         if(me.plannedStars.length === 0 && me.isEnoughAir()) {
             me.goExplore(-1*direction);
         }
@@ -223,7 +231,8 @@ Diver.prototype.waitUnderwater = function() {
     this._intervals.push(waiting);
 };
 Diver.prototype.isFree = function() {
-    return (this.stars.length + this.plannedStars.length < 2) && this.isEnoughAir();
+    // diver has vacant hand, enough air in scuba and he underwater
+    return (this.stars.length + this.plannedStars.length < 2) && this.isEnoughAir() && this.getYCoordinate() >= Water.BOTTOM_Y;
 };
 Diver.prototype.planStars = function(stars) {
     var count = 0;

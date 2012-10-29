@@ -14,6 +14,7 @@ var Water = window.Water = function() {
     this.diverCollection = new DiverCollection(waterEl);
     this.starCollection = new StarCollection(waterEl);
     this.starQueue = []; this.rechargeQueue = [];
+    this.diverDeleteCount = 0;
     waterEl.addEventListener('click', function(event) {
         var offset = Utils.getElementOffset(waterEl);
         if((event.pageY - offset[0]) < Water.BOTTOM_Y+22) {
@@ -34,6 +35,13 @@ var Water = window.Water = function() {
             window.clearTimeout(me.rechargeTimeout);
             queueObj = me.rechargeQueue.shift();
             me.diverCollection.remove(queueObj.diver);
+        }
+        else {
+            //delayed remove
+            //remove next divers, arrived on boat
+            if(me.diverDeleteCount < me.diverCollection.getTotalCount()) {
+                me.diverDeleteCount++;
+            }
         }
     }, false);
 };
@@ -87,6 +95,17 @@ Water.prototype.onFoundNewStar = function(star) {
         if(me.starQueue.indexOf(star) === -1) {
             me.starQueue.push(star);
         }
+    }
+};
+Water.prototype.diverMayContinue = function(diver) {
+    //check to remove request
+    if(this.diverDeleteCount > 0) {
+        this.diverCollection.remove(diver);
+        this.diverDeleteCount--;
+        return false;
+    }
+    else {
+        return true;
     }
 };
 Water.prototype.loadToBoat = function(star) {
